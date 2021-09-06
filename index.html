@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html translate="no">
+  <head>
+    <meta charset="utf-8">
+    <meta name="google" content="notranslate" />
+    <title>Peritiae IDE</title>
+
+    <link rel=stylesheet href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel=stylesheet href="css/codemirror.css">
+    <link rel=stylesheet href="fonts/source-code-pro.css">
+    <link rel=stylesheet href="fonts/source-sans-3.css">
+    <link rel=stylesheet href="css/page.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js"></script>
+    <script src="js/codemirror.js"></script>
+    <script src="js/page.js"></script>
+  </head>
+  <body>
+    <div id='page-container'>
+
+      <div id='collapsed-file-list-container' style='display: none;'>
+        <div class='toolbar'>
+          <span id='files-show' title='Show file list' class='toolbar-button'>
+            <i class="fas fa-angle-right"></i>
+          </span>
+        </div>
+      </div><!--collapsed-file-list-container-->
+
+      <div id='file-list-container'>
+        <div class='toolbar noselect'>
+          <span style='margin-right: 0.5em;'>Files</span>
+          <span id='create-file' title='Create file' class='toolbar-button'>
+            <i class="fas fa-plus"></i>
+          </span>
+          <span id='delete-file' title='Delete file' class='toolbar-button'>
+            <i class="fas fa-trash"></i>
+          </span>
+          <span id='files-hide' title='Hide file list' class='toolbar-button' style='float: right;'>
+            <i class="fas fa-angle-left"></i>
+          </span>
+        </div>
+        <div id='file-list'></div>
+      </div><!--file-list-container-->
+
+      <div id='code-container'>
+        <div id='code-container-column' class='container-column'>
+          <div class='toolbar noselect'>
+            <span style='margin-right: 0.5em;'>Code</span>
+            <span id="save" title='Save' class='toolbar-button'>
+              <i class="fas fa-save"></i>
+            </span>
+            <span id="create-link" title='Create link' class='toolbar-button'>
+              <i class="fas fa-link"></i>
+            </span>
+            <span id="help" title='Help' class='toolbar-button'>
+              <i class="fas fa-info-circle"></i>
+            </span>
+          </div>
+          <!--CodeMirror goes here.-->
+        </div> <!--container-column-->
+      </div> <!--code-container-->
+
+      <div id='console-container'>
+        <div class='container-column'>
+          <div class='toolbar'>
+            <span id="vm-controls" class="noselect">
+              <span style='margin-right: 0.5em;'>Simulator</span>
+              <span id="run" title='Run simulator' class='toolbar-button enabled'>
+                <i class="fas fa-play"></i>
+              </span>
+              <span id="step" title='Step single instruction' class='toolbar-button disabled'>
+                <i class="fas fa-step-forward"></i>
+              </span>
+              <span id="pause" title='Pause simulator' class='toolbar-button disabled'>
+                <i class="fas fa-pause"></i>
+              </span>
+              <span id="stop" title='Stop simulator' class='toolbar-button disabled'>
+                <i class="fas fa-stop"></i>
+              </span>
+            </span>
+            <span id="debug-controls" class="noselect">
+              <span id="terminal" title='Terminal' class='toolbar-button'>
+                <i class="fas fa-desktop"></i>
+              </span>
+              <span id="registers" title='CPU state' class='toolbar-button'>
+                <i class="fas fa-microchip"></i>
+              </span>
+              <span id="memory" title='Memory' class='toolbar-button'>
+                <i class="fas fa-memory"></i>
+              </span>
+            </span>
+            <span id='clock-freq' style='float: right; font-weight: normal; text-transform: none;'>
+             0 kHz
+            </span>
+          </div>
+          <div id='console-wrapper'>
+            <canvas id='console'></canvas>
+            <div id='cpu-info' style='display: none;'>
+              <table>
+                <tr>
+                  <th>Register</th>
+                  <th>Hex</th>
+                  <th>Unsigned</th>
+                  <th>Signed</th>
+                </tr>
+                <!--{{{-->
+                <tr>
+                  <td>PC</td>
+                  <td class='register-value' id='cpu-info-pc-hex'></td>
+                  <td class='register-value' id='cpu-info-pc-unsigned'></td>
+                  <td class='register-value' id='cpu-info-pc-signed'></td>
+                </tr>
+                <tr>
+                  <td>BP</td>
+                  <td class='register-value' id='cpu-info-bp-hex'></td>
+                  <td class='register-value' id='cpu-info-bp-unsigned'></td>
+                  <td class='register-value' id='cpu-info-bp-signed'></td>
+                </tr>
+                <tr>
+                  <td>SP</td>
+                  <td class='register-value' id='cpu-info-sp-hex'></td>
+                  <td class='register-value' id='cpu-info-sp-unsigned'></td>
+                  <td class='register-value' id='cpu-info-sp-signed'></td>
+                </tr>
+                <tr>
+                  <td>R0</td>
+                  <td class='register-value' id='cpu-info-r0-hex'></td>
+                  <td class='register-value' id='cpu-info-r0-unsigned'></td>
+                  <td class='register-value' id='cpu-info-r0-signed'></td>
+                </tr>
+                <tr>
+                  <td>R1</td>
+                  <td class='register-value' id='cpu-info-r1-hex'></td>
+                  <td class='register-value' id='cpu-info-r1-unsigned'></td>
+                  <td class='register-value' id='cpu-info-r1-signed'></td>
+                </tr>
+                <tr>
+                  <td>R2</td>
+                  <td class='register-value' id='cpu-info-r2-hex'></td>
+                  <td class='register-value' id='cpu-info-r2-unsigned'></td>
+                  <td class='register-value' id='cpu-info-r2-signed'></td>
+                </tr>
+                <tr>
+                  <td>R3</td>
+                  <td class='register-value' id='cpu-info-r3-hex'></td>
+                  <td class='register-value' id='cpu-info-r3-unsigned'></td>
+                  <td class='register-value' id='cpu-info-r3-signed'></td>
+                </tr>
+                <tr>
+                  <td>R4</td>
+                  <td class='register-value' id='cpu-info-r4-hex'></td>
+                  <td class='register-value' id='cpu-info-r4-unsigned'></td>
+                  <td class='register-value' id='cpu-info-r4-signed'></td>
+                </tr>
+                <tr>
+                  <td>R5</td>
+                  <td class='register-value' id='cpu-info-r5-hex'></td>
+                  <td class='register-value' id='cpu-info-r5-unsigned'></td>
+                  <td class='register-value' id='cpu-info-r5-signed'></td>
+                </tr>
+                <tr>
+                  <td>R6</td>
+                  <td class='register-value' id='cpu-info-r6-hex'></td>
+                  <td class='register-value' id='cpu-info-r6-unsigned'></td>
+                  <td class='register-value' id='cpu-info-r6-signed'></td>
+                </tr>
+                <tr>
+                  <td>R7</td>
+                  <td class='register-value' id='cpu-info-r7-hex'></td>
+                  <td class='register-value' id='cpu-info-r7-unsigned'></td>
+                  <td class='register-value' id='cpu-info-r7-signed'></td>
+                </tr>
+                <tr>
+                  <td>R8</td>
+                  <td class='register-value' id='cpu-info-r8-hex'></td>
+                  <td class='register-value' id='cpu-info-r8-unsigned'></td>
+                  <td class='register-value' id='cpu-info-r8-signed'></td>
+                </tr>
+                <!--}}}-->
+              </table>
+              <table>
+                <tr><th colspan=2>Flags</th></tr>
+                <tr>
+                  <td>Overflow</td>
+                  <td class='flag-value' id='cpu-info-overflow'></td>
+                </tr>
+                <tr>
+                  <td>Carry</td>
+                  <td class='flag-value' id='cpu-info-carry'></td>
+                </tr>
+                <tr>
+                  <td>Sign</td>
+                  <td class='flag-value' id='cpu-info-sign'></td>
+                </tr>
+                <tr>
+                  <td>Zero</td>
+                  <td class='flag-value' id='cpu-info-zero'></td>
+                </tr>
+                <tr>
+                  <td>Halt</td>
+                  <td class='flag-value' id='cpu-info-halt'></td>
+                </tr>
+              </table>
+            </div><!--cpu-info-->
+            <div id='memory-info' style='display: none;'>
+              <nav style='text-align: center; margin-top: 1em;'>
+                <label for='memory-info-search'><i class="fas fa-search"></i></label>
+                <input id='memory-info-search' type='text' placeholder='Address (hex)'>
+              </nav>
+
+              <table id='memory-data' style='margin: 1em auto 0 auto;'>
+                <tr>
+                  <th>Offset</th>
+                  <th>00</th><th>01</th><th>02</th><th>03</th>
+                  <th>04</th><th>05</th><th>06</th><th>07</th>
+                  <th>08</th><th>09</th><th>0a</th><th>0b</th>
+                  <th>0c</th><th>0d</th><th>0e</th><th>0f</th>
+                </tr>
+                <!--{{{-->
+                <tr>
+                  <th></th>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                </tr>
+                <tr>
+                  <th></th>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                </tr>
+                <tr>
+                  <th></th>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                </tr>
+                <tr>
+                  <th></th>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                </tr>
+                <tr>
+                  <th></th>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                </tr>
+                <tr>
+                  <th></th>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                </tr>
+                <tr>
+                  <th></th>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                </tr>
+                <tr>
+                  <th></th>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                </tr>
+                <tr>
+                  <th></th>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                </tr>
+                <tr>
+                  <th></th>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                </tr>
+                <tr>
+                  <th></th>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                </tr>
+                <tr>
+                  <th></th>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                </tr>
+                <tr>
+                  <th></th>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                </tr>
+                <tr>
+                  <th></th>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                </tr>
+                <tr>
+                  <th></th>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                </tr>
+                <tr>
+                  <th></th>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                </tr>
+                <tr>
+                  <th></th>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                </tr>
+                <tr>
+                  <th></th>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                </tr>
+                <tr>
+                  <th></th>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                </tr>
+                <tr>
+                  <th></th>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                </tr>
+                <tr>
+                  <th></th>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                </tr>
+                <tr>
+                  <th></th>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                </tr>
+                <tr>
+                  <th></th>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                </tr>
+                <tr>
+                  <th></th>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                </tr>
+                <tr>
+                  <th></th>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                </tr>
+                <tr>
+                  <th></th>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                </tr>
+                <tr>
+                  <th></th>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                </tr>
+                <tr>
+                  <th></th>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                </tr>
+                <tr>
+                  <th></th>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                </tr>
+                <tr>
+                  <th></th>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                </tr>
+                <tr>
+                  <th></th>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                </tr>
+                <tr>
+                  <th></th>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                  <td></td><td></td><td></td><td></td>
+                </tr>
+                <!--}}}-->
+              </table>
+            </div><!--memory-info-->
+          </div><!--console-wrapper-->
+
+          <div class='toolbar'>
+            <span>Log</span>
+            <span id='log-hide' title='Hide log' class='toolbar-button' style='float: right; display: none;'>
+              <i class="fas fa-angle-down"></i>
+            </span>
+            <span id='log-show' title='Show log' class='toolbar-button' style='float: right;'>
+              <i class="fas fa-angle-up"></i>
+            </span>
+          </div>
+          <div id='log' style='flex: 1 0 auto; max-height: 50%; display: none;'></div>
+
+        </div> <!--container-column-->
+      </div> <!--console-container-->
+    </div> <!--page-container-->
+
+    <div id='create-file-modal' class='modal-overlay' style='display: none;'>
+      <div class='modal-content'>
+        <div class='modal-header'>
+          <span style='font-weight: bold;'>Create File</span>
+          <span class='modal-close toolbar-button'>
+            <i class="fas fa-window-close"></i>
+          </span>
+        </div>
+        <div class='modal-body'>
+          <label for='create-file-name'>File name</label>
+          <input id='create-file-name' type="text" style="width: 20em;">
+          <p id='file-name-invalid-chars' style="width: 20em; color: #c44d3b; display: none;">
+            File name may only contain alphanumeric characters, underscore (_), dash (-), or forward slash (/).
+          </p>
+          <p id='file-name-already-exists' style="width: 20em; color: #c44d3b; display: none;">
+            A file by this name already exists.
+          </p>
+          <div style="text-align: right; margin-top: 1em;">
+            <button disabled>Create</button>
+          </div>
+        </div>
+      </div>
+    </div><!--create-file-modal-->
+
+  </body>
+</html>
+<!-- You're still here? It's over. Go home. Go! -->

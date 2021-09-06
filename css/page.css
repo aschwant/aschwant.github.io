@@ -1,0 +1,208 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family:  "Source Code Pro", monospace;
+  font-size: 100%;
+}
+div, header {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+table {
+  border: none;
+  border-spacing: 0;
+}
+.noselect {
+  user-select: none;
+}
+.text-center {
+  text-align: center;
+}
+#page-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+#file-list-container {
+  flex: 0 0 20em;
+  max-width: 20em;
+  position: relative;
+  background-color: #f3f3f3;
+  display: flex;
+  flex-direction: column;
+}
+#file-list-container .toolbar {
+  width: 20em;
+  box-sizing: border-box;
+  border-bottom: 1px solid rgb(221, 221, 221);
+  border-right: 1px solid rgb(221, 221, 221);
+}
+#collapsed-file-list-container {
+  flex: 0 0 1em;
+  max-width: 1em;
+  position: relative;
+  border-right: 1px solid rgb(221, 221, 221);
+  background-color: #f3f3f3;
+  display: flex;
+  flex-direction: column;
+}
+#collapsed-file-list-container .toolbar {
+  width: 1em;
+  position: absolute;
+  box-sizing: border-box;
+  border-bottom: 1px solid rgb(221, 221, 221);
+  border-right: 1px solid rgb(221, 221, 221);
+}
+#file-list {
+  width: 100%;
+  height: 100%;
+  border-right: 1px solid rgb(221, 221, 221);
+  overflow: auto;
+  white-space: nowrap;
+  padding-top: 0.5em;
+}
+.file-list-selected {
+  background-color: skyblue;
+}
+.source-file {
+  cursor: pointer;
+  padding-left: 1em;
+}
+.container-column {
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+}
+#code-container {
+  flex: 1 1 50%;
+  height: 100%;
+  border-right: 1px solid rgb(221, 221, 221);
+}
+#console-container {
+  flex: 1 1 50%;
+  height: 100%;
+}
+#code-wrapper {
+  flex: 1;
+  display: flex;
+  flex-flow: column;
+  position: relative;
+}
+.toolbar {
+  background-color: rgb(247, 247, 247);
+  border-top: 1px solid rgb(221, 221, 221);
+  border-bottom: 1px solid rgb(221, 221, 221);
+  padding: 0.25em;
+  flex: 0 0 auto;
+  font-weight: bold;
+  font-family: 'Source Sans 3', sans-serif;
+  text-transform: uppercase;
+  font-size: 100%;
+}
+#log {
+  margin: 0;
+  padding: 0;
+  background-color: #f3f3f3;
+  /*background-color: #333;*/
+  width: 100%;
+  height: 100%;
+  padding: 0.5em;
+  overflow-y: auto;
+  overflow-wrap: anywhere;
+}
+#console-wrapper {
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  background-color: #333;
+  position: relative;
+}
+#console {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+}
+#debug-controls {
+  margin-left: 0.5em;
+}
+#log p {
+  margin: 0;
+  margin-bottom: 0.1em;
+}
+.CodeMirror {
+  flex: 1;
+  font-size: 1.1em;
+}
+.highlighted-line {
+  background-color: skyblue;
+}
+.breakpoints {
+  width: 0.8em;
+}
+.toolbar-button {
+  cursor: pointer;
+  color: black; 
+}
+.toolbar-button.disabled {
+  cursor: auto;
+  color: #aaa; 
+}
+#cpu-info, #memory-info {
+  background-color: #f3f3f3;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  overflow: auto;
+}
+#cpu-info tr:nth-child(even), #memory-info tr:nth-child(even) {
+  background-color: #ddd;
+}
+#cpu-info tr:nth-child(odd), #memory-info tr:nth-child(odd) {
+  background-color: #f7f7f7;
+}
+#cpu-info table, #memory-info table {
+  margin: 1em auto;
+  border: 1px solid rgb(221, 221, 221);
+}
+#cpu-info td, #cpu-info th, #memory-info td, #memory-info th {
+  padding: .25em;
+}
+#cpu-info .register-value {
+  width: 8em;
+  text-align: right;
+}
+#cpu-info .flag-value {
+  width: 8em;
+  text-align: right;
+}
+.modal-overlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,.2);
+  left: 0;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  flex-flow: column;
+  justify-content: center;
+}
+.modal-content {
+  background-color: rgb(247, 247, 247);
+  border: 1px solid rgb(221, 221, 221);
+  font-family: 'Source Sans 3', sans-serif;
+}
+.modal-close {
+  float: right;
+}
+.modal-header {
+  padding: 0.5em;
+  background-color: rgb(221, 221, 221);
+}
+.modal-body {
+  padding: 0.5em;
+}
