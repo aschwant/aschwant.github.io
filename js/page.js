@@ -590,7 +590,7 @@ $(document).ready(function() {
   triggerEvent('initialize');
   $(window).resize(() => triggerEvent('resize'))
 
-  VirtualMachine.create('/bin/vm.wasm', terminal, logger).then(vm_ => {
+  VirtualMachine.create('wasm/vm.wasm', terminal, logger).then(vm_ => {
     vm = vm_;
     vm.initialize();
     context = vm.createContext().context;
