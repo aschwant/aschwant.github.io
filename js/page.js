@@ -301,16 +301,15 @@ Console.prototype.reset = function() {
 
 Console.prototype.computeResize = function() {
   // Scale the canvas so we don't have stretching.
-  let wrapper = this.canvas.parentElement;
+  const wrapper = this.canvas.parentElement;
   this.canvas.width = wrapper.clientWidth;
   this.canvas.height = wrapper.clientHeight;
-  // TODO: Does this actually work? My devicePixelRatio is 1.
-  let ratio = window.devicePixelRatio;
+  const ratio = this.getDevicePixelRatio();
   this.ctx.scale(ratio, ratio);
 
-  // Compute the size of a character and the size of the in terms of
-  // characters.
-  let charSize = this.ctx.measureText("W");
+  // Compute the size of the console in terms of characters.
+  this.computeFontSize();
+  const charSize = this.ctx.measureText("W");
   this.charWidth = Math.ceil(charSize.width);
   // TODO: Come up with a better way to calcualte this.
   this.charHeight = this.charWidth * 2; 
@@ -320,6 +319,23 @@ Console.prototype.computeResize = function() {
   this.dirty = true;
 }
 
+Console.prototype.computeFontSize = function() {
+  // TODO: Seems like there should be a better way to do this.
+  const offsetWidth = document.getElementById("text-size").offsetWidth;
+  const pixelRatio = this.getDevicePixelRatio();
+  for (var i = 1; i < 100; i++) {
+    this.ctx.font = i.toString() + 'px "Source Code Pro", monospace';
+    const charWidth = this.ctx.measureText("W");
+    if (charWidth.width * pixelRatio >= offsetWidth) {
+      break;
+    }
+  }
+}
+
+Console.prototype.getDevicePixelRatio = function() {
+  return window.devicePixelRatio;
+}
+
 Console.prototype.draw = function() {
   if (!this.dirty) {
     return;
@@ -327,9 +343,7 @@ Console.prototype.draw = function() {
 
   this.ctx.fillStyle = "#333";
   this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-  // TODO: Detect the font size from the style.
-  this.ctx.font = '1em "Source Code Pro", monospace';
-  this.ctx.fillStyle = "#fffaea";
+  this.ctx.fillStyle = "#fff";
 
   let lines = this.lineBuffer.getLines(this.nRows, this.nCols);
   for (var i = 0; i < this.nRows; i++) {
