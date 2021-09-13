@@ -305,11 +305,12 @@ Console.prototype.computeResize = function() {
   // Compute the size of the console in terms of characters.
   this.computeFontSize();
   const charSize = this.ctx.measureText("W");
+  const pixelRatio = this.getDevicePixelRatio();
   this.charWidth = Math.ceil(charSize.width);
   // TODO: Come up with a better way to calcualte this.
   this.charHeight = this.charWidth * 2; 
-  this.nRows = Math.floor(this.canvas.height / this.charHeight);
-  this.nCols = Math.floor(this.canvas.width / this.charWidth);
+  this.nRows = Math.floor(this.canvas.height / (this.charHeight * pixelRatio));
+  this.nCols = Math.floor(this.canvas.width / (this.charWidth * pixelRatio));
 
   this.dirty = true;
 }
