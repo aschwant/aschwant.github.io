@@ -1,0 +1,979 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Instruction Reference</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+</head>
+<body>
+
+
+  <section class="section">
+    <div class="container">
+      <div class="columns">
+        <div class='column is-3'>
+          <aside class="menu">
+            <ul class="menu-list">
+              <li>
+                <a href="#memory-access">Memory Access Instructions</a>
+                <ul>
+                  <li><a href="#load-loads">LOAD, LOADS</a></li>
+                  <li><a href="#store">STORE</a></li>
+                </ul>
+              </li>
+              <li>
+                <a href="#arithmetic">Arithmetic Instructions</a>
+                <ul>
+                  <li><a href="#add">ADD</a></li>
+                  <li><a href="#sub">SUB</a></li>
+                  <li><a href="#neg">NEG</a></li>
+                  <li><a href="#cmp">CMP</a></li>
+                  <li><a href="#mul-muls">MUL, MULS</a></li>
+                  <li><a href="#div-divs">DIV, DIVS</a></li>
+                </ul>
+              </li>
+              <li>
+                <a href="#bitwise">Bitwise Instructions</a>
+                <ul>
+                  <li><a href="#and">AND</a></li>
+                  <li><a href="#or">OR</a></li>
+                  <li><a href="#xor">XOR</a></li>
+                  <li><a href="#not">NOT</a></li>
+                  <li><a href="#shr-shrs">SHR, SHRS</a></li>
+                  <li><a href="#shl">SHL</a></li>
+                </ul>
+              </li>
+              <li>
+                <a href="#branch">Branch Instructions</a>
+                <ul>
+                  <li><a href="#jmp">JMP</a></li>
+                  <li><a href="#be">BE</a></li>
+                  <li><a href="#bne">BNE</a></li>
+                  <li><a href="#bg-bgs">BG, BGS</a></li>
+                  <li><a href="#bge-bges">BGE, BGES</a></li>
+                  <li><a href="#bl-bls">BL, BLS</a></li>
+                  <li><a href="#ble-bles">BLE, BLES</a></li>
+                </ul>
+              </li>
+              <li>
+                <a href="#stack">Stack Instructions</a>
+                <ul>
+                  <li><a href="#push">PUSH</a></li>
+                  <li><a href="#pop">POP</a></li>
+                  <li><a href="#call">CALL</a></li>
+                  <li><a href="#ret">RET</a></li>
+                </ul>
+              </li>
+              <li>
+                <a href="#print">Print Instructions</a>
+                <ul>
+                  <li><a href="#printc">PRINTC</a></li>
+                  <li><a href="#printi">PRINTI</a></li>
+                </ul>
+              </li>
+              <li>
+                <a href="#other">Other Instructions</a>
+                <ul>
+                  <li><a href="#copy">COPY</a></li>
+                  <li><a href="#halt">HALT</a></li>
+                  <li><a href="#nop">NOP</a></li>
+                </ul>
+              </li>
+            </ul>
+          </aside>
+        </div>
+
+        <div class='column is-9'>
+
+
+
+  <h1 class="title is-1">Instruction Reference</h1>
+
+  <h2 id="memory-access" class="title is-2">Memory Access Instructions</h2>
+
+  <div class="block box">
+    <h3 class="title is-3 has-text-primary" id="load-loads">LOAD, LOADS</h3>
+    <h4 class="subtitle is-5">Load a value from memory into a register.</h4>
+    <div class="content">
+      <h4>Arguments</h4>
+      <ul>
+        <li><strong>register</strong> (destination), <strong>immediate</strong> (source)</li>
+        <li><strong>register</strong> (destination), <strong>immediate indirect</strong> (source)</li>
+        <li><strong>register</strong> (destination), <strong>register indirect</strong> (source)</li>
+      </ul>
+      <h4>Flags Set</h4>
+      <p>sign, zero</p>
+      <h4>Size Modifiers</h4>
+      <p>
+        <code>#b</code> (byte),
+        <code>#h</code> (half word, two bytes),
+        <code>#w</code> (word, four bytes)
+      </p>
+      <h4>Notes</h4>
+      <ul>
+        <li><code>LOAD</code>: values are interpreted as unsigned. If a value
+          is smaller than 4 bytes (i.e. the <code>#b</code> or <code>#h</code>
+          size modifiers are used) then the values will be zero padded to 32
+          bits.
+        </li>
+        <li><code>LOADS</code>: values are interpreted as signed. If a value
+          is smaller than 4 bytes (i.e. the <code>#b</code> or <code>#h</code>
+          size modifiers are used) then the values will be sign extended to 32
+          bits.
+        </li>
+      </ul>
+      <h4>Examples</h4>
+      <code class='is-block mt-2'>
+        // Load the value 123 into register R1.<br>
+        LOAD R1 123
+      </code>
+      <code class='is-block mt-2'>
+        // Load the four byte value at address 123 into register R1.<br>
+        LOAD R1 @123
+      </code>
+      <code class='is-block mt-2'>
+        // Load the one byte value at address 0xA0 into register R1.<br>
+        LOAD#b R1 @0xA0
+      </code>
+      <code class='is-block mt-2'>
+        // Load the four byte value at the address contained in R2 into<br>
+        // register R1.<br>
+        LOAD R1 @R2
+      </code>
+    </div>
+  </div>
+
+  <div class="block box">
+    <h3 class="title is-3 has-text-primary" id="store">STORE</h3>
+    <h4 class="subtitle is-5">Store a register value in memory.</h4>
+    <div class="content">
+      <h4>Arguments</h4>
+      <ul>
+        <li><strong>immediate indirect</strong> (source), <strong>register</strong> (destination)</li>
+        <li><strong>register indirect</strong> (source), <strong>register</strong> (destination)</li>
+      </ul>
+      <h4>Flags Set</h4>
+      <p>None</p>
+      <h4>Size Modifiers</h4>
+      <p>
+        <code>#b</code> (byte),
+        <code>#h</code> (half word, two bytes),
+        <code>#w</code> (word, four bytes)
+      </p>
+      <h4>Examples</h4>
+      <code class='is-block mt-2'>
+        // Store the four bytes in R1 to address 123.<br>
+        STORE @123 R1
+      </code>
+      <code class='is-block mt-2'>
+        // Store the lowest byte in R1 to address contained in R2.<br>
+        STORE#b @R2 R1
+      </code>
+    </div>
+  </div>
+
+  <h2 id="arithmetic" class="title is-2">Arithmetic Instructions</h2>
+
+  <div class="block box">
+    <h3 class="title is-3 has-text-primary" id="add">ADD</h3>
+    <h4 class="subtitle is-5">Add two register values.</h4>
+    <div class="content">
+      <h4>Arguments</h4>
+      <ul>
+        <li><strong>register</strong> (sum), <strong>register</strong> (addend), <strong>register</strong> (addend)</li>
+      </ul>
+      <h4>Flags Set</h4>
+      <p>carry, overflow, sign, zero</p>
+      <h4>Notes</h4>
+      <p>Binary addition is the same for signed and unsigned numbers.</p>
+      <h4>Examples</h4>
+      <code class='is-block mt-2'>
+        LOAD R1 13<br>
+        LOAD R2 17<br>
+        // Add the values in R1 and R2 and store the sum in R3.<br>
+        ADD R3 R1 R2<br>
+        // R3 is now 30.
+      </code>
+    </div>
+  </div>
+
+  <div class="block box">
+    <h3 class="title is-3 has-text-primary" id="sub">SUB</h3>
+    <h4 class="subtitle is-5">Subtract one register value from another.</h4>
+    <div class="content">
+      <h4>Arguments</h4>
+      <ul>
+        <li><strong>register</strong> (difference), <strong>register</strong> (minuend), <strong>register</strong> (subtrahend)</li>
+      </ul>
+      <h4>Flags Set</h4>
+      <p>carry, overflow, sign, zero</p>
+      <h4>Notes</h4>
+      <p>Binary subtraction is the same for signed and unsigned numbers.</p>
+      <h4>Examples</h4>
+      <code class='is-block mt-2'>
+        LOAD R1 13<br>
+        LOAD R2 17<br>
+        // Subtract R2 from R1 and store the difference in R3.<br>
+        SUB R3 R1 R2<br>
+        // R3 is now -4
+      </code>
+    </div>
+  </div>
+
+  <div class="block box">
+    <h3 class="title is-3 has-text-primary" id="neg">NEG</h3>
+    <h4 class="subtitle is-5">Negate the value of a register.</h4>
+    <div class="content">
+      <h4>Arguments</h4>
+      <ul>
+        <li><strong>register</strong> (destination), <strong>register</strong> (source)</li>
+      </ul>
+      <h4>Flags Set</h4>
+      <p>carry, overflow, sign, zero</p>
+      <h4>Notes</h4>
+      <p>This is the same as subtracting from zero.</p>
+      <h4>Examples</h4>
+      <code class='is-block mt-2'>
+        LOAD R1 5<br>
+        // Negate R1 and store the result in R2.<br>
+        NEG R2 R1<br>
+        // R2 is now -5
+      </code>
+    </div>
+  </div>
+
+  <div class="block box">
+    <h3 class="title is-3 has-text-primary" id="cmp">CMP</h3>
+    <h4 class="subtitle is-5">Compare two register values.</h4>
+    <div class="content">
+      <h4>Arguments</h4>
+      <ul>
+        <li><strong>register</strong> (minuend), <strong>register</strong> (subtrahend)</li>
+      </ul>
+      <h4>Flags Set</h4>
+      <p>carry, overflow, sign, zero</p>
+      <h4>Notes</h4>
+      <p>This is the same as <a href="#sub">SUB</a>, but the difference is
+        discarded, so only flags are changed.</p>
+      <h4>Examples</h4>
+      <code class='is-block mt-2'>
+        // Compare the value of R1 to the value of R2.<br>
+        CMP R1 R2
+      </code>
+    </div>
+  </div>
+
+  <div class="block box">
+    <h3 class="title is-3 has-text-primary" id="mul-muls">MUL, MULS</h3>
+    <h4 class="subtitle is-5">Multiply two register values.</h4>
+    <div class="content">
+      <h4>Arguments</h4>
+      <ul>
+        <li><strong>register</strong> (product), <strong>register</strong> (factor), <strong>register</strong> (factor)</li>
+      </ul>
+      <h4>Flags Set</h4>
+      <p>carry, overflow, sign, zero</p>
+      <h4>Notes</h4>
+      <ul>
+        <li><code>MUL</code>: performs unsigned multiplication. Values are
+          interpreted as unsigned.</li>
+        <li><code>MULS</code>: performs signed multiplication. Values are
+          interpreted as signed.</li>
+        <li>The <code>carry</code> and <code>overflow</code> flags will be set
+          if the product cannot be represented with 32 bits.
+        </li>
+      </ul>
+      <h4>Examples</h4>
+      <code class='is-block mt-2'>
+        LOAD R1 13<br>
+        LOAD R2 17<br>
+        // Multiply R1 with R2 and store the result in R3.<br>
+        MUL R3 R1 R2<br>
+        // R3 is now 221. 
+      </code>
+    </div>
+  </div>
+
+  <div class="block box">
+    <h3 class="title is-3 has-text-primary" id="div-divs">DIV, DIVS</h3>
+    <h4 class="subtitle is-5">Divide a register value by another.</h4>
+    <div class="content">
+      <h4>Arguments</h4>
+      <ul>
+        <li>
+          <strong>register</strong> (quotient),
+          <strong>register</strong> (remainder),
+          <strong>register</strong> (dividend),
+          <strong>register</strong> (divisor)
+        </li>
+      </ul>
+      <h4>Flags Set</h4>
+      <p>carry, overflow, sign, zero</p>
+      <h4>Notes</h4>
+      <ul>
+        <li><code>DIV</code>: performs unsigned division. Values are
+          interpreted as unsigned. <code>carry</code> and <code>overflow</code>
+          flags will always be unset after the instruction executes.</li>
+        <li><code>DIVS</code>: performs signed division. Values are
+          interpreted as signed. If the quotient cannot be represented with 32
+          bits (only occurs when the 32 bit minimum value
+          <code>-2,147,483,648</code> is divided by <code>-1</code>) then the
+          <code>carry</code> and <code>overflow</code> flags will be set.</li>
+        <li>If a divide by zero occurs then the CPU will halt. In the future
+          this will be changed so a CPU exception occurs.</code>
+      </ul>
+      <h4>Examples</h4>
+      <code class='is-block mt-2'>
+        LOAD R1 27<br>
+        LOAD R2 4<br>
+        // Divide R1 by R2, store the result in R3 and the remainder in R4.<br>
+        DIV R3 R4 R1 R2<br>
+        // R3 is now 6 and R4 is now 3.
+      </code>
+      <code class='is-block mt-2'>
+        // Divide R1 by R2, store the result in R3 and discard the remainder<br>
+        // by writing to R0.<br>
+        DIV R3 R0 R1 R2
+      </code>
+    </div>
+  </div>
+
+  <h2 id="bitwise" class="title is-2">Bitwise Instructions</h2>
+
+  <div class="block box">
+    <h3 class="title is-3 has-text-primary" id="and">AND</h3>
+    <h4 class="subtitle is-5">Compute the bitwise AND of two registers.</h4>
+    <div class="content">
+      <h4>Arguments</h4>
+      <ul>
+        <li><strong>register</strong> (destination), <strong>register</strong> (source), <strong>register</strong> (source)</li>
+      </ul>
+      <h4>Flags Set</h4>
+      <p>carry, overflow, sign, zero</p>
+      <h4>Notes</h4>
+      <p>This instruction will always clear the <code>carry</code> and <code>overflow</code> flags.</p>
+      <h4>Examples</h4>
+      <code class='is-block mt-2'>
+        LOAD R1 4<br>
+        LOAD R2 7<br>
+        // AND R1 and R2 and store the result in R3.<br>
+        AND R3 R1 R2<br>
+        // R3 is now 4.
+      </code>
+    </div>
+  </div>
+
+  <div class="block box">
+    <h3 class="title is-3 has-text-primary" id="or">OR</h3>
+    <h4 class="subtitle is-5">Compute the bitwise OR of two registers.</h4>
+    <div class="content">
+      <h4>Arguments</h4>
+      <ul>
+        <li><strong>register</strong> (destination), <strong>register</strong> (source), <strong>register</strong> (source)</li>
+      </ul>
+      <h4>Flags Set</h4>
+      <p>carry, overflow, sign, zero</p>
+      <h4>Notes</h4>
+      <p>This instruction will always clear the <code>carry</code> and <code>overflow</code> flags.</p>
+      <h4>Examples</h4>
+      <code class='is-block mt-2'>
+        LOAD R1 3<br>
+        LOAD R2 5<br>
+        // OR R1 and R2 and store the result in R3.<br>
+        OR R3 R1 R2<br>
+        // R3 is now 7
+      </code>
+    </div>
+  </div>
+
+  <div class="block box">
+    <h3 class="title is-3 has-text-primary" id="xor">XOR</h3>
+    <h4 class="subtitle is-5">Compute the bitwise exclusive OR of two registers.</h4>
+    <div class="content">
+      <h4>Arguments</h4>
+      <ul>
+        <li><strong>register</strong> (destination), <strong>register</strong> (source), <strong>register</strong> (source)</li>
+      </ul>
+      <h4>Flags Set</h4>
+      <p>carry, overflow, sign, zero</p>
+      <h4>Notes</h4>
+      <p>This instruction will always clear the <code>carry</code> and <code>overflow</code> flags.</p>
+      <h4>Examples</h4>
+      <code class='is-block mt-2'>
+        LOAD R1 3<br>
+        LOAD R2 5<br>
+        // XOR R1 and R2 and store the result in R3.<br>
+        XOR R3 R1 R2<br>
+        // R3 is now 6
+      </code>
+    </div>
+  </div>
+
+  <div class="block box">
+    <h3 class="title is-3 has-text-primary" id="not">NOT</h3>
+    <h4 class="subtitle is-5">Compute the bitwise negation of a register.</h4>
+    <div class="content">
+      <h4>Arguments</h4>
+      <ul>
+        <li><strong>register</strong> (destination), <strong>register</strong> (source)</li>
+      </ul>
+      <h4>Flags Set</h4>
+      <p>carry, overflow, sign, zero</p>
+      <h4>Notes</h4>
+      <p>This instruction will always clear the <code>carry</code> and <code>overflow</code> flags.</p>
+      <h4>Examples</h4>
+      <code class='is-block mt-2'>
+        LOAD R1 0x88888888<br>
+        // NOT R1 and store the result in R2.<br>
+        NOT R2 R1<br>
+        // R2 is now 0x77777777.
+      </code>
+    </div>
+  </div>
+
+  <div class="block box">
+    <h3 class="title is-3 has-text-primary" id="shr-shrs">SHR, SHRS</h3>
+    <h4 class="subtitle is-5">Bitwise shift the value of a register right.</h4>
+    <div class="content">
+      <h4>Arguments</h4>
+      <ul>
+        <li><strong>register</strong> (destination), <strong>register</strong> (source), <strong>register</strong> (shift count)</li>
+      </ul>
+      <h4>Flags Set</h4>
+      <p>carry, overflow, sign, zero</p>
+      <h4>Notes</h4>
+      <ul>
+        <li><code>SHR</code>: zeros will be shifted into the most significant
+         bit (leftmost bit) for each shift.</li>
+        <li><code>SHRS</code>: shifted in bits will match the most significant
+         bit, i.e. if the MSB is 1 then the shifted in bit will be 1, otherwise
+         it will be 0. 
+        <li>The <code>carry</code> flag will be set if the last shifted out bit was set.
+        <li>These instructions will always clear the <code>overflow</code> flag.
+        <li>If the shift count register is greater than 31 then the value will
+          be shifted by the shift count modulo 32.</li>
+      </ul>
+      <h4>Examples</h4>
+      <code class='is-block mt-2'>
+        LOAD R1 12<br>
+        LOAD R2 3<br>
+        // Shift R1 right R2 times and store the result in R3.<br>
+        SHR R3 R1 R2<br>
+        // R3 is now 1 and the carry flag is set.
+      </code>
+    </div>
+  </div>
+
+  <div class="block box">
+    <h3 class="title is-3 has-text-primary" id="shl">SHL</h3>
+    <h4 class="subtitle is-5">Bitwise shift the value of a register left.</h4>
+    <div class="content">
+      <h4>Arguments</h4>
+      <ul>
+        <li><strong>register</strong> (destination), <strong>register</strong> (source), <strong>register</strong> (shift count)</li>
+      </ul>
+      <h4>Flags Set</h4>
+      <p>carry, overflow, sign, zero</p>
+      <h4>Notes</h4>
+      <ul>
+        <li>Zeros will be shifted into the least significant bit (rightmost bit) for
+         each shift. If the third register (shift count) is greater than 31 then
+         the value will be shifted by the shift count modulo 32.</li>
+        <li>The <code>carry</code> flag will be set if the last shifted out bit was set.
+        <li>This instruction will always clear the <code>overflow</code> flag.
+      </ul>
+      <h4>Examples</h4>
+      <code class='is-block mt-2'>
+        LOAD R1 1<br>
+        LOAD R2 3<br>
+        // Shift R1 left R2 times and store the result in R3.<br>
+        SHL R3 R1 R2<br>
+        // R3 is now 8.
+      </code>
+    </div>
+  </div>
+
+  <h2 id="branch" class="title is-2">Branch Instructions</h2>
+
+  <div class="block box">
+    <h3 class="title is-3 has-text-primary" id="jmp">JMP</h3>
+    <h4 class="subtitle is-5">Unconditionally jump execution to an address.</h4>
+    <div class="content">
+      <h4>Arguments</h4>
+      <ul>
+        <li><strong>immediate</strong> (destination)</li>
+        <li><strong>register</strong> (destination)</li>
+      </ul>
+      <h4>Flags Set</h4>
+      <p>None</p>
+      <h4>Examples</h4>
+      <code class='is-block mt-2'>
+        // Execute the next instruction at address pointed to by label "foobar".<br>
+        JMP foobar
+      </code>
+      <code class='is-block mt-2'>
+        // Execute the next instruction at address 123.<br>
+        JMP 123
+      </code>
+      <code class='is-block mt-2'>
+        // Execute the next instruction at the address contained in R1.<br>
+        JMP R1
+      </code>
+    </div>
+  </div>
+
+  <div class="block box">
+    <h3 class="title is-3 has-text-primary" id="be">BE</h3>
+    <h4 class="subtitle is-5">Branch execution if equal.</h4>
+    <div class="content">
+      <h4>Arguments</h4>
+      <ul>
+        <li><strong>immediate</strong> (destination)</li>
+        <li><strong>register</strong> (destination)</li>
+      </ul>
+      <h4>Flags Set</h4>
+      <p>None</p>
+      <h4>Notes</h4>
+      <p>The branch will be taken if the <code>zero</code> flag is set.</p>
+      <h4>Examples</h4>
+      <code class='is-block mt-2'>
+        // Execute the next instruction at address pointed to by label<br>
+        // "foobar" if R1 and R2 are equal.<br>
+        CMP R1 R2<br>
+        BE foobar
+      </code>
+      <code class='is-block mt-2'>
+        // Execute the next instruction at address 123 if R1 and R2 are equal.<br>
+        CMP R1 R2<br>
+        BE 123
+      </code>
+      <code class='is-block mt-2'>
+        // Execute the next instruction at the address contained in R3 if R1<br>
+        // and R2 are equal.<br>
+        CMP R1 R2<br>
+        BE R3
+      </code>
+    </div>
+  </div>
+
+  <div class="block box">
+    <h3 class="title is-3 has-text-primary" id="bne">BNE</h3>
+    <h4 class="subtitle is-5">Branch execution if not equal.</h4>
+    <div class="content">
+      <h4>Arguments</h4>
+      <ul>
+        <li><strong>immediate</strong> (destination)</li>
+        <li><strong>register</strong> (destination)</li>
+      </ul>
+      <h4>Flags Set</h4>
+      <p>None</p>
+      <h4>Notes</h4>
+      <p>The branch will be taken if the <code>zero</code> flag is not set.</p>
+      <h4>Examples</h4>
+      <code class='is-block mt-2'>
+        // Execute the next instruction at address pointed to by label<br>
+        // "foobar" if R1 and R2 are not equal.<br>
+        CMP R1 R2<br>
+        BNE foobar
+      </code>
+      <code class='is-block mt-2'>
+        // Execute the next instruction at address 123 if R1 and R2 are not<br>
+        // equal.<br>
+        CMP R1 R2<br>
+        BNE 123
+      </code>
+      <code class='is-block mt-2'>
+        // Execute the next instruction at the address contained in R3 if R1<br>
+        // and R2 are not equal.<br>
+        CMP R1 R2<br>
+        BNE R3
+      </code>
+    </div>
+  </div>
+
+  <div class="block box">
+    <h3 class="title is-3 has-text-primary" id="bg-bgs">BG, BGS</h3>
+    <h4 class="subtitle is-5">Branch execution if greater.</h4>
+    <div class="content">
+      <h4>Arguments</h4>
+      <ul>
+        <li><strong>immediate</strong> (destination)</li>
+        <li><strong>register</strong> (destination)</li>
+      </ul>
+      <h4>Flags Set</h4>
+      <p>None</p>
+      <h4>Notes</h4>
+      <ul>
+        <li><code>BG</code>: interprets flags as if unsigned values were compared. The branch will be
+          taken if the <code>carry</code> and <code>zero</code> flags are not
+          set.</li>
+        <li><code>BGS</code>: interprets flags as if signed values were compared. The branch will be
+          taken if the <code>overflow</code> and <code>sign</code> flags do
+          not match, and the <code>zero</code> flag is not set.</li>
+      </ul>
+      <h4>Examples</h4>
+      <code class='is-block mt-2'>
+        // Execute the next instruction at address pointed to by label<br>
+        // "foobar" if R1 is greater than R2.<br>
+        CMP R1 R2<br>
+        BG foobar
+      </code>
+      <code class='is-block mt-2'>
+        // Execute the next instruction at address 123 if R1 is greater<br>
+        // than R2.<br>
+        CMP R1 R2<br>
+        BG 123
+      </code>
+      <code class='is-block mt-2'>
+        // Execute the next instruction at the address contained in R3 if R1<br>
+        // is greater than R2.<br>
+        CMP R1 R2<br>
+        BG R3
+      </code>
+    </div>
+  </div>
+
+  <div class="block box">
+    <h3 class="title is-3 has-text-primary" id="bge-bges">BGE, BGES</h3>
+    <h4 class="subtitle is-5">Branch execution if greater or equal.</h4>
+    <div class="content">
+      <h4>Arguments</h4>
+      <ul>
+        <li><strong>immediate</strong> (destination)</li>
+        <li><strong>register</strong> (destination)</li>
+      </ul>
+      <h4>Flags Set</h4>
+      <p>None</p>
+      <h4>Notes</h4>
+      <ul>
+        <li><code>BGE</code>: interprets flags as if unsigned values were compared. The branch will be
+          taken if the <code>carry</code> flag is not set.</li>
+        <li><code>BGES</code>: interprets flags as if signed values were compared. The branch will be
+          taken if the <code>overflow</code> and <code>sign</code> flags match.
+          </li>
+      </ul>
+      <h4>Examples</h4>
+      <code class='is-block mt-2'>
+        // Execute the next instruction at address pointed to by label<br>
+        // "foobar" if R1 is greater than or equal to R2.<br>
+        CMP R1 R2<br>
+        BGE foobar
+      </code>
+      <code class='is-block mt-2'>
+        // Execute the next instruction at address 123 if R1 is greater than<br>
+        // or equal to R2.<br>
+        CMP R1 R2<br>
+        BGE 123
+      </code>
+      <code class='is-block mt-2'>
+        // Execute the next instruction at the address contained in R3 if R1<br>
+        // is greater than or equal to R2.<br>
+        CMP R1 R2<br>
+        BGE R3
+      </code>
+    </div>
+  </div>
+
+  <div class="block box">
+    <h3 class="title is-3 has-text-primary" id="bl-bls">BL, BLS</h3>
+    <h4 class="subtitle is-5">Branch execution if less.</h4>
+    <div class="content">
+      <h4>Arguments</h4>
+      <ul>
+        <li><strong>immediate</strong> (destination)</li>
+        <li><strong>register</strong> (destination)</li>
+      </ul>
+      <h4>Flags Set</h4>
+      <p>None</p>
+      <h4>Notes</h4>
+      <ul>
+        <li><code>BL</code>: interprets flags as if unsigned values were compared. The branch will be
+          taken if the <code>carry</code> flag is set.</li>
+        <li><code>BLS</code>: interprets flags as if signed values were compared. The branch will be
+          taken if the <code>overflow</code> and <code>sign</code> flags do
+          not match.</li>
+      </ul>
+      <h4>Examples</h4>
+      <code class='is-block mt-2'>
+        // Execute the next instruction at address pointed to by label<br>
+        // "foobar" if R1 is less than R2.<br>
+        CMP R1 R2<br>
+        BL foobar
+      </code>
+      <code class='is-block mt-2'>
+        // Execute the next instruction at address 123 if R1 is less than R2.<br>
+        CMP R1 R2<br>
+        BL 123
+      </code>
+      <code class='is-block mt-2'>
+        // Execute the next instruction at the address contained in R3 if R1<br>
+        // is less than R2.<br>
+        CMP R1 R2<br>
+        BL R3
+      </code>
+    </div>
+  </div>
+
+  <div class="block box">
+    <h3 class="title is-3 has-text-primary" id="ble-bles">BLE, BLES</h3>
+    <h4 class="subtitle is-5">Branch execution if less than or equal.</h4>
+    <div class="content">
+      <h4>Arguments</h4>
+      <ul>
+        <li><strong>immediate</strong> (destination)</li>
+        <li><strong>register</strong> (destination)</li>
+      </ul>
+      <h4>Flags Set</h4>
+      <p>None</p>
+      <h4>Notes</h4>
+      <ul>
+        <li><code>BLE</code>: interprets flags as if unsigned values were compared. The branch will be
+          taken if the <code>carry</code> or <code>zero</code> flags are set.</li>
+        <li><code>BLES</code>: interprets flags as if signed values were compared. The branch will be
+          taken if the <code>overflow</code> and <code>sign</code> flags do
+          not match, or the <code>zero</code> flag is set.</li>
+      </ul>
+      <h4>Examples</h4>
+      <code class='is-block mt-2'>
+        // Execute the next instruction at address pointed to by label<br>
+        // "foobar" if R1 is less than or equal to R2.<br>
+        CMP R1 R2<br>
+        BLE foobar
+      </code>
+      <code class='is-block mt-2'>
+        // Execute the next instruction at address 123 if R1 is less than or<br>
+        // equal to R2.<br>
+        CMP R1 R2<br>
+        BLE 123
+      </code>
+      <code class='is-block mt-2'>
+        // Execute the next instruction at the address contained in R3 if R1<br>
+        // is less than or equal to R2.<br>
+        CMP R1 R2<br>
+        BLE R3
+      </code>
+    </div>
+  </div>
+
+  <h2 id="stack" class="title is-2">Stack Instructions</h2>
+
+  <div class="block box">
+    <h3 class="title is-3 has-text-primary" id="push">PUSH</h3>
+    <h4 class="subtitle is-5">Push a register value on the stack.</h4>
+    <div class="content">
+      <h4>Arguments</h4>
+      <ul>
+        <li><strong>register</strong> (source)</li>
+      </ul>
+      <h4>Flags Set</h4>
+      <p>None</p>
+      <h4>Notes</h4>
+      <p>Decrements SP by four (the size of one word) and stores the value
+        in the source register to the address pointed to by SP.</p>
+      <h4>Examples</h4>
+      <code class='is-block mt-2'>
+        LOAD SP 0xFFFF0<br>
+        LOAD R1 0xDEADBEEF<br>
+        // Subtract 4 from SP and write R1 to the address contained in SP.<br>
+        PUSH R1<br>
+        // SP is now 0xFFFEC and 0xDEADBEEF is written at that address (in<br>
+        // little-endian order).
+      </code>
+    </div>
+  </div>
+
+  <div class="block box">
+    <h3 class="title is-3 has-text-primary" id="pop">POP</h3>
+    <h4 class="subtitle is-5">Pop a value off the stack into a register.</h4>
+    <div class="content">
+      <h4>Arguments</h4>
+      <ul>
+        <li><strong>register</strong> (destination)</li>
+      </ul>
+      <h4>Flags Set</h4>
+      <p>None</p>
+      <h4>Notes</h4>
+      <p>Loads a word from the address contained in SP into the destination
+        register and then increments SP by four (the size of one word).</p>
+      <h4>Examples</h4>
+      <code class='is-block mt-2'>
+        LOAD SP 0xFFFF0<br>
+        LOAD R1 0xDEADBEEF<br>
+        PUSH R1<br>
+        POP R2<br>
+        // R2 is now contains 0xDEADBEEF.
+      </code>
+    </div>
+  </div>
+
+  <div class="block box">
+    <h3 class="title is-3 has-text-primary" id="call">CALL</h3>
+    <h4 class="subtitle is-5">Store the program counter and jump to an address.</h4>
+    <div class="content">
+      <h4>Arguments</h4>
+      <ul>
+        <li><strong>immediate</strong> (destination)</li>
+        <li><strong>register</strong> (destination)</li>
+      </ul>
+      <h4>Flags Set</h4>
+      <p>None</p>
+      <h4>Notes</h4>
+      <p>This instruction is the same as <code>PUSH PC</code> followed by
+        <code>JMP <i>destination</i></code>.</p>
+      <h4>Examples</h4>
+      <code class='is-block mt-2'>
+        // Program that prints "ABC".<br>
+        <br>
+        start:<br>
+        LOAD R1 'A'<br>
+        PRINTC R1<br>
+        CALL print_b<br>
+        LOAD R1 'C'<br>
+        PRINTC R1<br>
+        HALT<br>
+        <br>
+        print_b:<br>
+        LOAD R1 'B'<br>
+        PRINTC R1<br>
+        RET
+      </code>
+    </div>
+  </div>
+
+  <div class="block box">
+    <h3 class="title is-3 has-text-primary" id="ret">RET</h3>
+    <h4 class="subtitle is-5">Read an address off the stack and jump to it.</h4>
+    <div class="content">
+      <h4>Arguments</h4>
+      <p>None</p>
+      <h4>Flags Set</h4>
+      <p>None</p>
+      <h4>Notes</h4>
+      <p>This instruction is the same as <code>POP PC</code>.</p>
+      <h4>Examples</h4>
+      <code class='is-block mt-2'>
+        // Program that prints "ABC".<br>
+        <br>
+        start:<br>
+        LOAD R1 'A'<br>
+        PRINTC R1<br>
+        CALL print_b<br>
+        LOAD R1 'C'<br>
+        PRINTC R1<br>
+        HALT<br>
+        <br>
+        print_b:<br>
+        LOAD R1 'B'<br>
+        PRINTC R1<br>
+        RET      </code>
+    </div>
+  </div>
+
+  <h2 id="print" class="title is-2">Print Instructions</h2>
+
+  <div class="block box">
+    <h3 class="title is-3 has-text-primary" id="printc">PRINTC</h3>
+    <h4 class="subtitle is-5">Print an ASCII character to the screen.</h4>
+    <div class="content">
+      <h4>Arguments</h4>
+      <ul>
+        <li><strong>register</strong> (character value)</li>
+      </ul>
+      <h4>Flags Set</h4>
+      <p>None</p>
+      <h4>Examples</h4>
+      <code class='is-block mt-2'>
+        // Print the character "A" to the screen.<br>
+        LOAD R1 'A'<br>
+        PRINTC R1
+      </code>
+      <code class='is-block mt-2'>
+        // Print the character "B" to the screen.<br>
+        LOAD R1 66<br>
+        PRINTC R1
+      </code>
+    </div>
+  </div>
+
+  <div class="block box">
+    <h3 class="title is-3 has-text-primary" id="printi">PRINTI</h3>
+    <h4 class="subtitle is-5">Print an integer to the screen.</h4>
+    <div class="content">
+      <h4>Arguments</h4>
+      <ul>
+        <li><strong>register</strong> (value)</li>
+      </ul>
+      <h4>Flags Set</h4>
+      <p>None</p>
+      <h4>Examples</h4>
+      <code class='is-block mt-2'>
+        // Print the number 123 to the screen.<br>
+        LOAD R1 123<br>
+        PRINTI R1
+      </code>
+      <code class='is-block mt-2'>
+        // Print the number -456 to the screen.<br>
+        LOAD R1 -456<br>
+        PRINTI R1
+      </code>
+    </div>
+  </div>
+
+  <h2 id="other" class="title is-2">Other Instructions</h2>
+
+  <div class="block box">
+    <h3 class="title is-3 has-text-primary" id="copy">COPY</h3>
+    <h4 class="subtitle is-5">Copy one register to another.</h4>
+    <div class="content">
+      <h4>Arguments</h4>
+      <ul>
+        <li><strong>register</strong> (destination), <strong>register</strong> (source)</li>
+      </ul>
+      <h4>Flags Set</h4>
+      <p>None</p>
+      <h4>Examples</h4>
+      <code class='is-block mt-2'>
+        // Copy R1 into R2.<br>
+        COPY R2 R1
+      </code>
+    </div>
+  </div>
+
+  <div class="block box">
+    <h3 class="title is-3 has-text-primary" id="halt">HALT</h3>
+    <h4 class="subtitle is-5">Stop the processor.</h4>
+    <div class="content">
+      <h4>Arguments</h4>
+      <p>None</p>
+      <h4>Flags Set</h4>
+      <p>None</p>
+      <h4>Examples</h4>
+      <code class='is-block mt-2'>
+        // The processor will stop running once this instruction is executed.<br>
+        HALT
+      </code>
+    </div>
+  </div>
+
+  <div class="block box">
+    <h3 class="title is-3 has-text-primary" id="nop">NOP</h3>
+    <h4 class="subtitle is-5">Does nothing.</h4>
+    <div class="content">
+      <h4>Arguments</h4>
+      <p>None</p>
+      <h4>Flags Set</h4>
+      <p>None</p>
+      <h4>Examples</h4>
+      <code class='is-block mt-2'>
+        // This instruction does nothing.<br>
+        NOP
+      </code>
+    </div>
+  </div>
+
+        </div>
+      </div>
+
+</body>
+</html>
+
