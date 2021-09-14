@@ -597,7 +597,7 @@ keep_hashing_loop:
 	
 	// Thanks for checking out this demo! Disable the breakpoint and press play
 	// to let the simulator run indefinitely.
-	// You can click on the DIP (chip) icon above to watch the CPU register and
+	// You can click on the DIP (chip) icon above to watch the CPU registers and
 	// flags change as it executes. You can also click on the RAM icon and
 	// search for "fffff" to view the stack and see the memory updated in
 	// real-time.
@@ -1384,7 +1384,7 @@ $(document).ready(function() {
     vm = vm_;
     vm.initialize();
     context = vm.createContext().context;
-    console.log(context)
+    $('#loading-modal').hide();
   });
 });
 
@@ -1427,7 +1427,7 @@ VmController.prototype.breakpointsChanged = function() {
   if (this._state == VmStates.STOPPED) {
     return;
   }
-  setBreakpoints();
+  this._setBreakpoints();
 }
 
 VmController.prototype._updateButtons = function() {
@@ -1460,7 +1460,7 @@ VmController.prototype._beginExecution = function() {
   }
   triggerEvent('beforeBeginExecution');
 
-  console.log(vm.resetVm({context: context}));
+  vm.resetVm({context: context});
   terminal.reset();
 
   const sources = sourceFileList.getFiles().map(file => ({
@@ -1476,7 +1476,7 @@ VmController.prototype._beginExecution = function() {
     return;
   }
 
-  setBreakpoints();
+  this._setBreakpoints();
   this._runInterval = setInterval(this._doExecutionInterval.bind(this), 100);
   this._startTime = performance.now();
   this._lastClockUpdateTime = this._startTime;
@@ -1585,6 +1585,42 @@ VmController.prototype._stopExecution = function() {
   this._updateButtons();
   $('#clock-freq').text('0 kHz');
   triggerEvent('stopExecution');
+}
+
+VmController.prototype._setBreakpoints = function() {
+  const breakpoints = this._getBreakpoints();
+  const breakpointsList = []
+  for (const [key, value] of Object.entries(breakpoints)) {
+    breakpointsList.push({
+      'file_name': key,
+      'line_numbers': value
+    });
+  }
+
+  const response = vm.setBreakpoints({
+    'context': context,
+    'breakpoints': breakpointsList,
+  });
+}
+
+VmController.prototype._getBreakpoints = function() {
+  const files = sourceFileList.getFiles();
+  const breakpoints = files.reduce((map, file) => {
+    map[file.name] = [];
+    return map;
+  }, {});
+
+  for (var i = 0; i < files.length; i++) {
+    const doc = files[i].buffer;
+    for (var j = 0; j < doc.lineCount(); j++) {
+      const info = doc.lineInfo(j);
+      if (info.gutterMarkers && info.gutterMarkers['breakpoints']) {
+        breakpoints[files[i].name].push(j);
+      }
+    }
+  }
+
+  return breakpoints;
 }
 
 TerminalController = function() {
@@ -1998,49 +2034,12 @@ LogController.prototype._handleLog = function(level, msg) {
   }
 }
 
-function getBreakpoints() {
-  const files = sourceFileList.getFiles();
-  const breakpoints = files.reduce((map, file) => {
-    map[file.name] = [];
-    return map;
-  }, {});
-
-  for (var i = 0; i < files.length; i++) {
-    const doc = files[i].buffer;
-    for (var j = 0; j < doc.lineCount(); j++) {
-      const info = doc.lineInfo(j);
-      if (info.gutterMarkers && info.gutterMarkers['breakpoints']) {
-        breakpoints[files[i].name].push(j);
-      }
-    }
-  }
-
-  return breakpoints;
-}
-
 SaveController = function() {}
 
 SaveController.prototype.initialize = function() {
   $("#save").click(() => {
     alert("Sorry, saving isn't implemented yet. Stay tuned!");
   });
-}
-
-function setBreakpoints() {
-  const breakpoints = getBreakpoints();
-  const breakpointsList = []
-  for (const [key, value] of Object.entries(breakpoints)) {
-    breakpointsList.push({
-      'file_name': key,
-      'line_numbers': value
-    });
-  }
-
-  const response = vm.setBreakpoints({
-    'context': context,
-    'breakpoints': breakpointsList,
-  });
-  console.log(response);
 }
 
 function uint8ToHex(value) {
